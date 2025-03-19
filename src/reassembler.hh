@@ -1,12 +1,26 @@
 #pragma once
 
 #include "byte_stream.hh"
+#include <map>
+#include <iostream>
+
+using namespace std;
 
 class Reassembler
 {
 public:
   // Construct Reassembler to write into given ByteStream.
-  explicit Reassembler( ByteStream&& output ) : output_( std::move( output ) ) {}
+  //调整构造函数，初始化一些成员变量
+  //capacity：有什么根据吗
+  explicit Reassembler( ByteStream&& output ) :
+  output_( std::move( output ) ),
+  now_index(0),
+  buffer(), 
+  available_capacity(output_.writer().available_capacity())
+  {
+    Rsb_size ++;
+    cerr<<"################## "<<Rsb_size<<" ##################"<<endl;
+  }
 
   /*
    * Insert a new substring to be reassembled into a ByteStream.
@@ -43,4 +57,9 @@ public:
 
 private:
   ByteStream output_;
+  size_t now_index = 0;
+  std::map<size_t, std::string> buffer;
+  //size_t buffer_capacity = output_.writer().available_capacity();
+  size_t available_capacity = output_.writer().available_capacity();
+  size_t Rsb_size = 0;
 };

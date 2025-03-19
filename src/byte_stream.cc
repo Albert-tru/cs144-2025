@@ -1,5 +1,6 @@
 #include "byte_stream.hh"
-
+#include <algorithm>
+#include <iostream>
 using namespace std;
 
 ByteStream::ByteStream(uint64_t capacity) : capacity_(capacity), bytes_pushed_(0), bytes_popped_(0), is_closed_(false) {}
@@ -13,10 +14,12 @@ void Writer::push( string data )
   //   bytes_pushed_ += data.size();
   // }
   uint64_t available = available_capacity();
+  cerr<<"capacity_: "<<capacity_<<"  avai: "<<available_capacity()<<endl;
   uint64_t to_push = std::min(available, static_cast<uint64_t>(data.size()));
   if (to_push > 0) {
       buffer_.append(data.substr(0, to_push));
       bytes_pushed_ += to_push;
+      cerr<<"bytes_pushed_: "<<bytes_pushed_<<endl;
   }
 }
 
