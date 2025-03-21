@@ -12,15 +12,16 @@ public:
   // Construct Reassembler to write into given ByteStream.
   //调整构造函数，初始化一些成员变量
   //capacity：有什么根据吗
-  explicit Reassembler( ByteStream&& output ) :
-  output_( std::move( output ) ),
-  now_index(0),
-  buffer(), 
-  available_capacity(output_.writer().available_capacity())
-  {
-    Rsb_size ++;
-    cerr<<"################## "<<Rsb_size<<" ##################"<<endl;
+  explicit Reassembler( ByteStream&& output ) 
+  : output_( std::move( output ) )
+  , buffer() 
+  , _is_eof( false )
+  , _eof_index( 0 )
+  , _capacity( output_.writer().available_capacity() )
+  , _unassembled_bytes( 0 ) {
+    cerr<<"##########################################3#########"<<endl;
   }
+
 
   /*
    * Insert a new substring to be reassembled into a ByteStream.
@@ -58,8 +59,9 @@ public:
 private:
   ByteStream output_;
   size_t now_index = 0;
-  std::map<size_t, std::string> buffer;
-  //size_t buffer_capacity = output_.writer().available_capacity();
-  size_t available_capacity = output_.writer().available_capacity();
-  size_t Rsb_size = 0;
+  std::map<uint64_t , std::string> buffer;
+  bool _is_eof = false;
+  size_t _eof_index = 0;
+  size_t _capacity = 0;
+  uint64_t _unassembled_bytes = 0;
 };

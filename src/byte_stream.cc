@@ -26,6 +26,7 @@ void Writer::push( string data )
 //关闭写入流
 void Writer::close()
 {
+  cerr<<"close-----"<<endl;
   is_closed_ = true;
 }
 
@@ -73,6 +74,7 @@ void Reader::pop( uint64_t len )
 bool Reader::is_finished() const
 {
   //是否所有数据都已读取且写入端已关闭
+  cerr<<"is closed :  "<<is_closed_<<endl;
   return bytes_buffered() == 0 && is_closed_;
 }
 
