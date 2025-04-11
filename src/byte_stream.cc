@@ -14,19 +14,20 @@ void Writer::push( string data )
   //   bytes_pushed_ += data.size();
   // }
   uint64_t available = available_capacity();
-  cerr<<"capacity_: "<<capacity_<<"  avai: "<<available_capacity()<<endl;
+  //cerr<<"capacity_: "<<capacity_<<"  avai: "<<available_capacity()<<endl;
   uint64_t to_push = std::min(available, static_cast<uint64_t>(data.size()));
   if (to_push > 0) {
       buffer_.append(data.substr(0, to_push));
       bytes_pushed_ += to_push;
-      cerr<<"bytes_pushed_: "<<bytes_pushed_<<endl;
+      //cerr<<"bytes_pushed_: "<<bytes_pushed_<<endl;
   }
+  //cerr<<"writtt: "<<buffer_<<endl;
 }
 
 //关闭写入流
 void Writer::close()
 {
-  cerr<<"close-----"<<endl;
+  //cerr<<"close-----"<<endl;
   is_closed_ = true;
 }
 
@@ -65,6 +66,7 @@ void Reader::pop( uint64_t len )
   }
   //否则，弹出len个字节
   else {
+    //cerr<<"pop: "<<buffer_.substr(0,len)<<endl;
     buffer_.erase(0, len);
     bytes_popped_ += len;
   } 
@@ -74,7 +76,7 @@ void Reader::pop( uint64_t len )
 bool Reader::is_finished() const
 {
   //是否所有数据都已读取且写入端已关闭
-  cerr<<"is closed :  "<<is_closed_<<endl;
+  //cerr<<"is closed :  "<<is_closed_<<endl;
   return bytes_buffered() == 0 && is_closed_;
 }
 
