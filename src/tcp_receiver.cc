@@ -31,7 +31,7 @@ TCPReceiverMessage TCPReceiver::send() const
 {
   bool rst_flag = reassembler_.writer().has_error();
   //处理确认号(希望接受的字节的绝对序列号),流关闭的话需要加上FIN
-  uint16_t abs_ackno = reassembler_.writer().bytes_pushed() + 1;
+  uint64_t abs_ackno = reassembler_.writer().bytes_pushed() + 1;
   if(reassembler_.writer().is_closed()){
     abs_ackno += 1;
   }

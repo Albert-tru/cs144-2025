@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 void Reassembler::insert( uint64_t first_index, string data, bool is_last_substring )
 {
   size_t _first_unassembled = output_.writer().bytes_pushed();
