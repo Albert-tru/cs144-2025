@@ -18,6 +18,8 @@ public:
   Writer& writer();
   const Writer& writer() const;
 
+  // 添加公共方法来获取 is_closed_ 的值
+  bool is_closed() const { return is_closed_; }
   void set_error() { error_ = true; };       // Signal that the stream suffered an error.
   bool has_error() const { return error_; }; // Has the stream had an error?
 
@@ -30,6 +32,9 @@ protected:
   std::string buffer_ {};
   uint64_t bytes_pushed_ {};
   uint64_t bytes_popped_ {};
+
+
+protected:
   bool is_closed_ {};
 };
 
