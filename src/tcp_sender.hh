@@ -3,21 +3,33 @@
 #include "byte_stream.hh"
 #include "tcp_receiver_message.hh"
 #include "tcp_sender_message.hh"
-#include "queue"
+#include "deque"
 
 #include <functional>
 
 class TCPSender
 {
-public:
+  public:
   /* Construct TCP sender with given default Retransmission Timeout and possible ISN */
   TCPSender( ByteStream&& input, Wrap32 isn, uint64_t initial_RTO_ms )
-  : syn_sent_(false), fin_sent_(false)
-  ,input_( std::move( input ) ), isn_( isn ), initial_RTO_ms_( initial_RTO_ms )
-  , next_seqno_( isn_ ), rto_( initial_RTO_ms_ ), time_since_last_tick_( 0 )
-  , outstanding_segments_(), consecutive_retransmissions_count_( 0 )
-  {}
-
+    : input_( std::move( input ) )
+    , isn_( isn )
+    , initial_RTO_ms_( initial_RTO_ms )
+    , isSent_ISN( 0 )
+    , isSent_FIN( 0 )
+    , cur_RTO_ms( initial_RTO_ms )
+    , is_start_timer( 0 )
+    , received_msg()
+    , abs_seqno( 0 )
+    , primitive_window_size( 1 )
+    , outstanding_collections()
+    , outstanding_bytes( 0 )
+    , consecutive_retransmissions_nums( 0 )
+  {
+    received_msg.ackno = isn_;
+    received_msg.window_size = 1;
+  }
+  
   /* Generate an empty TCPSenderMessage */
   TCPSenderMessage make_empty_message() const;
 
@@ -39,21 +51,24 @@ public:
   const Writer& writer() const { return input_.writer(); }
   const Reader& reader() const { return input_.reader(); }
   Writer& writer() { return input_.writer(); }
-
-private:
   Reader& reader() { return input_.reader(); }
-
-  bool syn_sent_;
-  bool fin_sent_;
-  ByteStream input_; // 输出流，用于存储要发送的数据
-  Wrap32 isn_; // 初始序列号
-  uint64_t acked_seqno_ = 0;//接收方已接收的最大序列号
-  uint64_t initial_RTO_ms_; // 初始重传超时时间（毫秒）
-  Wrap32 next_seqno_; // 下一个要发送的序列号
-  uint16_t window_size_ = 0; // 窗口大小（接收来的）
-  uint64_t rto_; // 当前重传超时时间（毫秒）
-  uint64_t time_since_last_tick_; // 自上次调用 tick 函数以来经过的时间（毫秒）
-  std::queue<TCPSenderMessage> outstanding_segments_; // 未确认的段队列
-  uint64_t consecutive_retransmissions_count_; // 连续重传次数
-  bool timer_running_ = false; // 计时器是否正在运行的标志
+  
+  void set_error() { _has_error = true; }
+  bool has_error() const { return _has_error; }
+  
+  private:
+  ByteStream input_;
+  Wrap32 isn_;
+  uint64_t initial_RTO_ms_;
+  bool isSent_ISN;
+  bool isSent_FIN;
+  uint64_t cur_RTO_ms;
+  bool is_start_timer;
+  TCPReceiverMessage received_msg;  //接收来的TCPReceierMessage，用于记录可接收的窗口大小、ACK、
+  uint64_t abs_seqno;   //当前待发送的字节的绝对序列号
+  uint16_t primitive_window_size;
+  std::deque<TCPSenderMessage> outstanding_collections; //已发送但未确认的消息
+  uint64_t outstanding_bytes;  //需要重传的消息所占的字节
+  uint64_t consecutive_retransmissions_nums;  //连续重传次数
+  bool _has_error = false;   //错误判别
 };

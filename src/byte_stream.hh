@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <iostream>
+#include "debug.hh"
 
 class Reader;
 class Writer;
@@ -55,6 +57,7 @@ public:
   std::string_view peek() const; // Peek at the next bytes in the buffer
   void pop( uint64_t len );      // Remove `len` bytes from the buffer
 
+  bool is_empty() const;
   bool is_finished() const;        // Is the stream finished (closed and fully popped)?
   uint64_t bytes_buffered() const; // Number of bytes currently buffered (pushed and not popped)
   uint64_t bytes_popped() const;   // Total number of bytes cumulatively popped from stream

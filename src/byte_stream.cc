@@ -92,3 +92,7 @@ uint64_t Reader::bytes_popped() const
   return bytes_popped_; 
 }
 
+bool Reader::is_empty() const
+{
+  return bytes_buffered() == 0;
+}
