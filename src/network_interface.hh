@@ -6,6 +6,10 @@
 
 #include <memory>
 #include <queue>
+#include <map>
+#include <iostream>
+
+using namespace std;
 
 // A "network interface" that connects IP (the internet layer, or network layer)
 // with Ethernet (the network access layer, or link layer).
@@ -48,7 +52,7 @@ public:
 
   // Sends an Internet datagram, encapsulated in an Ethernet frame (if it knows the Ethernet destination
   // address). Will need to use [ARP](\ref rfc::rfc826) to look up the Ethernet destination address for the next
-  // hop. Sending is accomplished by calling `transmit()` (a member variable) on the frame.
+  //hop. Sending is accomplished by calling `transmit()` (a member variable) on the frame.
   void send_datagram( const InternetDatagram& dgram, const Address& next_hop );
 
   // Receives an Ethernet frame and responds appropriately.
@@ -82,4 +86,27 @@ private:
 
   // Datagrams that have been received
   std::queue<InternetDatagram> datagrams_received_ {};
+
+  // 内部时钟，记录从开始到现在的总毫秒数
+  size_t time_ms_ {0};
+
+  // ARP 缓存表：存储 IP 地址 -> {MAC 地址, 过期时间点} 的映射
+  // key: 32位的IP地址 (uint32_t)
+  // value: 一个包含 MAC 地址和此条目过期绝对时间的 pair
+  std::map<uint32_t, std::pair<EthernetAddress, size_t>> arp_table_;
+
+  // 等待 ARP 回复的 IP 数据报队列
+  // 当我们不知道下一跳的 MAC 地址时，把目标是这个 IP 的数据报暂存在这里
+  // key: 32位的下一跳IP地址 (uint32_t)
+  // value: 等待发送到该 IP 的数据报列表和时间戳
+  std::map<uint32_t, std::vector<std::pair<InternetDatagram, size_t>>> pending_datagrams_;
+
+  // ARP 请求节流阀：防止对同一个 IP 地址频繁发送 ARP 请求
+  // key: 32位的目标IP地址 (uint32_t)
+  // value: 上次为这个 IP 发送 ARP 请求的时间点
+  std::map<uint32_t, size_t> arp_request_timer_;
+
+  // --- 定义一些常量，方便代码编写和阅读 ---
+  static constexpr size_t ARP_MAPPING_TTL_MS = 30000;      // ARP 映射的存活时间：30秒
+  static constexpr size_t ARP_REQUEST_COOLDOWN_MS = 5000; // ARP 请求的冷却时间：5秒
 };
