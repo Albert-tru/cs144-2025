@@ -159,6 +159,7 @@ void NetworkInterface::tick( const size_t ms_since_last_tick )
   //   return time_ms_ >= pair.second; // 如果当前时间超过了过期时间，就删除
   // } );
   
+  
   // (也可以用传统的迭代器方式删除，效果一样)
   for (auto it = arp_table_.begin(); it != arp_table_.end(); ) {
     if (time_ms_ >= it->second.second) {
@@ -176,5 +177,6 @@ void NetworkInterface::tick( const size_t ms_since_last_tick )
     } else {
       ++it;
     }
+    cerr<<"debug"<<endl;
   }
 }
